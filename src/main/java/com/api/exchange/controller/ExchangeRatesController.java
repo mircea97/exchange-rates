@@ -22,21 +22,28 @@ public class ExchangeRatesController {
     private final ExchangeRateService exchangeRateService;
 
     @GetMapping("/{currency}")
-    public ResponseEntity<Map<String, BigDecimal>> getAllExchangeRates(@PathVariable String currency) {
-        final var exchangeRates = exchangeRateService.getAllExchangeRates(currency);
+    public ResponseEntity<Map<String, BigDecimal>> getExchangeRates(@PathVariable String currency) {
+        final var exchangeRates = exchangeRateService.getExchangeRates(currency);
         return ResponseEntity.ok(exchangeRates.getRates());
     }
 
-    @GetMapping("/from/{baseCurrency}/to/{exchangeCurrency}")
-    public ResponseEntity<BigDecimal> getExchangeRates(@PathVariable String baseCurrency, @PathVariable String exchangeCurrency) {
-        final var exchangeRate = exchangeRateService.getExchangeRate(baseCurrency, exchangeCurrency);
-        return ResponseEntity.ok(exchangeRate.getRates().get(exchangeCurrency));
+    @GetMapping("/from/{currency}/to/{symbol}")
+    public ResponseEntity<BigDecimal> getExchangeRates(@PathVariable String currency, @PathVariable String symbol) {
+        final var exchangeRate = exchangeRateService.getExchangeRate(currency, symbol);
+        return ResponseEntity.ok(exchangeRate.getRates().get(symbol));
     }
 
-    @GetMapping("/{value}")
-    public ResponseEntity<BigDecimal> getExchangeRates(@PathVariable BigDecimal value,
-                                                       @PathParam("baseCurrency") String baseCurrency,
-                                                       @PathParam("exchangeCurrency") String exchangeCurrency) {
-        return ResponseEntity.ok(exchangeRateService.getValueConversion(value, baseCurrency, exchangeCurrency));
+    @GetMapping("/value/{value}")
+    public ResponseEntity<BigDecimal> getValueConversion(@PathVariable BigDecimal value,
+                                                         @PathParam("currency") String currency,
+                                                         @PathParam("symbol") String symbol) {
+        return ResponseEntity.ok(exchangeRateService.getValueConversion(value, currency, symbol));
+    }
+
+    @GetMapping("/values/{value}")
+    public ResponseEntity<Map<String, BigDecimal>> getValuesConversion(@PathVariable BigDecimal value,
+                                                                       @PathParam("currency") String currency,
+                                                                       @PathParam("symbols") String[] symbols) {
+        return ResponseEntity.ok(exchangeRateService.getValuesConversion(value, currency, symbols));
     }
 }
