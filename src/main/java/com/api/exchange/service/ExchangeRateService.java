@@ -58,7 +58,7 @@ public class ExchangeRateService {
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().multiply(value)));
     }
 
-    private String buildUrl() {
+    String buildUrl() {
         return UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam(BASE_CURRENCY_PARAM, CURRENCY_PLACEHOLDER)
                 .queryParam(SYMBOLS_PARAM, "{symbols}")

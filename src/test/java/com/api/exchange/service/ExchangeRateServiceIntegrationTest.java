@@ -37,8 +37,8 @@ class ExchangeRateServiceIntegrationTest {
 
     @Test
     void getValueConversion() {
-        var value = exchangeRateService.getValueConversion(VALUE, BASE_CURRENCY, EUR);
-        assertTrue(value.compareTo(BigDecimal.ZERO) > 0);
+        var result = exchangeRateService.getValueConversion(VALUE, BASE_CURRENCY, EUR);
+        assertTrue(result.compareTo(BigDecimal.ZERO) > 0);
     }
 
     @Test
