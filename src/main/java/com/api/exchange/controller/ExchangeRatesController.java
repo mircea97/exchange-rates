@@ -29,7 +29,7 @@ public class ExchangeRatesController {
     }
 
     @GetMapping("/from/{currency:[A-Z]{3}}/to/{symbol:[A-Z]{3}}")
-    public ResponseEntity<BigDecimal> getExchangeRates(@PathVariable String currency, @PathVariable String symbol) {
+    public ResponseEntity<BigDecimal> getExchangeRate(@PathVariable String currency, @PathVariable String symbol) {
         final var exchangeRate = exchangeRateService.getExchangeRate(currency, symbol);
         return ResponseEntity.ok(exchangeRate.getRates().get(symbol));
     }

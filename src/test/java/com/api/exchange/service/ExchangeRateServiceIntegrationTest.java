@@ -1,5 +1,6 @@
 package com.api.exchange.service;
 
+import com.api.exchange.config.CacheConfig;
 import com.api.exchange.config.RestTemplateConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@Import(RestTemplateConfig.class)
+@Import({RestTemplateConfig.class, CacheConfig.class})
 class ExchangeRateServiceIntegrationTest {
 
     private static final String BASE_CURRENCY = "RON";
