@@ -31,9 +31,12 @@ public class ExchangeRateService {
     @Value("${app.exchange.url}")
     private String baseUrl;
 
+    @Value("${app.exchange.cache.enabled}")
+    public boolean exchangeCacheEnabled;
+
     private final RestTemplate restTemplate;
 
-    @Cacheable("exchange")
+    @Cacheable(value = "exchange", condition = "#root.target.exchangeCacheEnabled")
     public ExchangeRates getExchangeRates(final String currency) {
         final var urlTemplate = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam(BASE_CURRENCY_PARAM, CURRENCY_PLACEHOLDER)
@@ -42,19 +45,19 @@ public class ExchangeRateService {
         return restTemplate.getForObject(urlTemplate, ExchangeRates.class, Map.of(CURRENCY, currency));
     }
 
-    @Cacheable("exchange")
+    @Cacheable(value = "exchange", condition = "#root.target.exchangeCacheEnabled")
     public ExchangeRates getExchangeRate(final String currency, final String symbol) {
         final var params = Map.of(CURRENCY, currency, SYMBOLS_PARAM, symbol);
         return restTemplate.getForObject(buildUrl(), ExchangeRates.class, params);
     }
 
-    @Cacheable("exchange")
+    @Cacheable(value = "exchange", condition = "#root.target.exchangeCacheEnabled")
     public BigDecimal getValueConversion(final BigDecimal value, final String currency, final String symbol) {
         final var rate = getExchangeRate(currency, symbol).getRates().get(symbol);
         return value.multiply(rate);
     }
 
-    @Cacheable("exchange")
+    @Cacheable(value = "exchange", condition = "#root.target.exchangeCacheEnabled")
     public Map<String, BigDecimal> getValuesConversion(final BigDecimal value, final String currency, final String[] symbols) {
         validateSymbols(symbols);
 
