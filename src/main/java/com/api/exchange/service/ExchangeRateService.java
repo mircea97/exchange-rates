@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
@@ -69,7 +69,7 @@ public class ExchangeRateService {
                 .filter(s -> !s.matches("^[A-Z]{3}$"))
                 .toList();
         if (!invalidSymbols.isEmpty()) {
-            throw new HttpClientErrorException(BAD_REQUEST, String.format("Invalid symbols = %s", String.join(",", invalidSymbols)));
+            throw new ResponseStatusException(BAD_REQUEST, String.format("Invalid symbols = %s", String.join(",", invalidSymbols)));
         }
     }
 
