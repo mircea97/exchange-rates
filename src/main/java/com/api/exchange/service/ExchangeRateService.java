@@ -5,13 +5,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Service
 @Slf4j
@@ -47,6 +51,8 @@ public class ExchangeRateService {
     }
 
     public Map<String, BigDecimal> getValuesConversion(final BigDecimal value, final String currency, final String[] symbols) {
+        validateSymbols(symbols);
+
         final var params = Map.of(CURRENCY, currency,
                 SYMBOLS_PARAM, String.join(",", symbols));
 
@@ -56,6 +62,15 @@ public class ExchangeRateService {
                 .entrySet()
                 .stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().multiply(value)));
+    }
+
+    private void validateSymbols(final String[] symbols) {
+        var invalidSymbols = Arrays.stream(symbols)
+                .filter(s -> !s.matches("^[A-Z]{3}$"))
+                .toList();
+        if (!invalidSymbols.isEmpty()) {
+            throw new HttpClientErrorException(BAD_REQUEST, String.format("Invalid symbols = %s", String.join(",", invalidSymbols)));
+        }
     }
 
     String buildUrl() {
