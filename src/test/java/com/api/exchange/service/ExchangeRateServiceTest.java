@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
@@ -41,16 +42,26 @@ class ExchangeRateServiceTest {
         // given
         var exchangeRates = new ExchangeRates();
         exchangeRates.setRates(Map.of(EUR, BigDecimal.valueOf(0.2)));
-        when(restTemplate.getForObject(anyString(), eq(ExchangeRates.class), anyMap())).thenReturn(exchangeRates);
+
+        when(restTemplate.getForObject(any(), eq(ExchangeRates.class), anyMap())).thenReturn(exchangeRates);
+
+        var uriBuilder = mock(UriComponentsBuilder.class);
+        when(uriBuilder.queryParam("base", "{currency}")).thenReturn(uriBuilder);
+        when(uriBuilder.build()).thenReturn(mock(UriComponents.class));
 
         // when
-        var result = exchangeRateService.getExchangeRates(RON);
+        try (MockedStatic<UriComponentsBuilder> uri = Mockito.mockStatic(UriComponentsBuilder.class)) {
+            uri.when(() -> UriComponentsBuilder.fromHttpUrl(any())).thenReturn(uriBuilder);
 
-        // then
-        assertThat(result).isEqualTo(exchangeRates);
+            // when
+            var result = exchangeRateService.getExchangeRates(RON);
+
+            // then
+            assertThat(result).isEqualTo(exchangeRates);
+        }
     }
 
-/*    @Test
+    @Test
     void getExchangeRate() {
         // given
         var exchangeRates = new ExchangeRates();
@@ -59,17 +70,12 @@ class ExchangeRateServiceTest {
         doReturn(URL).when(exchangeRateService).buildUrl();
         when(restTemplate.getForObject(eq(URL), eq(ExchangeRates.class), anyMap())).thenReturn(exchangeRates);
 
-        var uriBuilder = mock(UriComponentsBuilder.class);
-
         // when
-        try (MockedStatic<UriComponentsBuilder> uri = Mockito.mockStatic(UriComponentsBuilder.class)) {
-            uri.when(UriComponentsBuilder::fromHttpUrl).thenReturn(uriBuilder);
-            var result = exchangeRateService.getExchangeRate(RON, EUR);
-        }
+        var result = exchangeRateService.getExchangeRate(RON, EUR);
 
         // then
         assertThat(result).isEqualTo(exchangeRates);
-    }*/
+    }
 
     @Test
     void getValueConversion() {
