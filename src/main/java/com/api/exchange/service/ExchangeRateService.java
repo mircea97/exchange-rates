@@ -4,6 +4,7 @@ import com.api.exchange.model.ExchangeRates;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
@@ -32,6 +33,7 @@ public class ExchangeRateService {
 
     private final RestTemplate restTemplate;
 
+    @Cacheable("exchange")
     public ExchangeRates getExchangeRates(final String currency) {
         final var urlTemplate = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam(BASE_CURRENCY_PARAM, CURRENCY_PLACEHOLDER)
@@ -40,16 +42,19 @@ public class ExchangeRateService {
         return restTemplate.getForObject(urlTemplate, ExchangeRates.class, Map.of(CURRENCY, currency));
     }
 
+    @Cacheable("exchange")
     public ExchangeRates getExchangeRate(final String currency, final String symbol) {
         final var params = Map.of(CURRENCY, currency, SYMBOLS_PARAM, symbol);
         return restTemplate.getForObject(buildUrl(), ExchangeRates.class, params);
     }
 
+    @Cacheable("exchange")
     public BigDecimal getValueConversion(final BigDecimal value, final String currency, final String symbol) {
         final var rate = getExchangeRate(currency, symbol).getRates().get(symbol);
         return value.multiply(rate);
     }
 
+    @Cacheable("exchange")
     public Map<String, BigDecimal> getValuesConversion(final BigDecimal value, final String currency, final String[] symbols) {
         validateSymbols(symbols);
 
